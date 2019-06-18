@@ -13,12 +13,9 @@ class Environment:
         
     def action_sample(self):
         return np.random.randint(9)
-<<<<<<< HEAD
 
     def sample_state(self):
         return(np.random.randint(32), np.random.randint(32))
-=======
->>>>>>> 0bcc2835e1a952f53fe8e6b5d0190dc5bef3d7b7
         
     def build_grid(self, grid_size, layout):
         def generate_row(indices, grid_size, cat):
@@ -60,18 +57,10 @@ class Environment:
     
     def get_state_matrix(self):
         n = len(self.grid)
-<<<<<<< HEAD
-        matrix = np.zeros((n+1, n))
-        for i in range(n):
-            for j in range(n):
-                matrix[i][j] = self.grid[i][j].get_rep()
-        matrix[-1][0], matrix[-1][1], matrix[-1][2] = self.car_vel_up, self.car_vel_left, self.car_vel_right
-=======
         matrix = np.zeros((n, n))
         for i in range(n):
             for j in range(n):
                 matrix[i][j] = self.grid[i][j].get_rep()
->>>>>>> 0bcc2835e1a952f53fe8e6b5d0190dc5bef3d7b7
         return matrix
         
     def reset(self):
@@ -83,7 +72,7 @@ class Environment:
         self.grid[self.agent_loc_y][self.agent_loc_x].agent = True
         state = self.get_state_matrix()
         self.grid[self.agent_loc_y][self.agent_loc_x].agent = False
-        return state
+        return (self.agent_loc_y, self.agent_loc_x), state
     
     def step(self, action):
         if action == 0:
@@ -104,14 +93,10 @@ class Environment:
             action = (1, 1, 0)
         elif action == 8:
             action = (-1, -1, 0)
-<<<<<<< HEAD
         if np.random.random() < 0.1:
             action = (0, 0, 0)
         del_up, del_left, del_right = action
         prev_loc = [self.agent_loc_y, self.agent_loc_x]
-=======
-        del_up, del_left, del_right = action
->>>>>>> 0bcc2835e1a952f53fe8e6b5d0190dc5bef3d7b7
         self.car_vel_up += del_up
         self.car_vel_left += del_left
         self.car_vel_right += del_right
@@ -119,24 +104,25 @@ class Environment:
         self.agent_loc_x += (self.car_vel_right - self.car_vel_left)
         try:
             curr_state = self.grid[self.agent_loc_y][self.agent_loc_x]
-<<<<<<< HEAD
             new_loc = [self.agent_loc_y, self.agent_loc_x]
-=======
->>>>>>> 0bcc2835e1a952f53fe8e6b5d0190dc5bef3d7b7
         except:
             done = True
             reward = -100
             state = self.reset()
-            return state, reward, done
+            if self.agent_loc_y >= 0 and self.agent_loc_x >= 0:
+                return (self.agent_loc_y, self.agent_loc_x), reward, done, state
+            else:
+                return (0, 0), reward, done, state
         curr_state.agent = True
         reward = -1
-<<<<<<< HEAD
         if self.trajectory_collision(prev_loc[1], new_loc[1], prev_loc[0], new_loc[0]):
-            done = False
+            done = True
+            reward = -100
             next_state = self.reset()
         else:
             if curr_state.category == 'i':
-                done = False
+                done = True
+                reward = -100
                 next_state = self.reset()
             elif curr_state.category == 't':
                 done = True
@@ -145,7 +131,10 @@ class Environment:
                 done = False
         state = self.get_state_matrix()
         curr_state.agent = False
-        return state, reward, done 
+        if self.agent_loc_y >= 0 and self.agent_loc_x >= 0:
+                return (self.agent_loc_y, self.agent_loc_x), reward, done, state
+        else:
+            return (0, 0), reward, done, state
 
     def trajectory_collision(self, prev_loc, new_loc, prev_row, new_row):
         iter_x = [j for j in range(min(prev_loc, new_loc), max(prev_loc, new_loc) + 1)]
@@ -156,19 +145,6 @@ class Environment:
             if self.grid[y][x].category == 'i':
                 return True
         return False
-=======
-        if curr_state.category == 'i':
-            done = False
-            next_state = self.reset()
-        elif curr_state.category == 't':
-            done = True
-            reward = 100
-        else:
-            done = False
-        state = self.get_state_matrix()
-        curr_state.agent = False
-        return state, reward, done 
->>>>>>> 0bcc2835e1a952f53fe8e6b5d0190dc5bef3d7b7
     
     def render(self, s):
         plt.imshow(s, cmap='Accent')
